@@ -1,6 +1,6 @@
-const jwt = require("jsonwebtoken");
 const userModel = require("../../models/user.model");
 const aesCipher = require("../../services/aesCipher");
+const authorizer = require("../../services/authorizer");
 
 async function validateRegisterInput(req, res, next) {
   if (await userModel.isExists(req.body)) {
@@ -38,31 +38,8 @@ async function authenticateUser(req, res) {
     return res.status(401).send({ error: "Wrong email or password" });
   }
 
-  const accessToken = generateAccessToken(user);
+  const accessToken = authorizer.generateAccessToken(user);
   return res.status(200).send({ accessToken: accessToken });
-}
-
-function generateAccessToken(user) {
-  const token = jwt.sign(
-    { id: user._id, isAdmin: user.isAdmin },
-    process.env.ACCESS_TOKEN_SECRET_KEY,
-    { expiresIn: 30 }
-  );
-  return token;
-}
-
-function authorizeUser(req, res, next) {
-  const token = req.header("Authorization").split(" ")[1];
-  console.log(token);
-  try {
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
-  } catch (error) {
-    console.log(error);
-    if (error instanceof jwt.JsonWebTokenError)
-      return res.status(401).send({ error: "Invalid Token" });
-    return res.status(400).send({ error: "Invalid Request" });
-  }
-  next();
 }
 
 function createSuccessResponseData(user) {
@@ -78,5 +55,4 @@ module.exports = {
   validateRegisterInput,
   registerUser,
   authenticateUser,
-  authorizeUser,
 };
