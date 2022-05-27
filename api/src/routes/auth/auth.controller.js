@@ -19,16 +19,15 @@ async function registerUser(req, res) {
       password: aesCipher.encrypt(req.body.password),
     };
     const user = await userModel.addUser(userData);
-    const responseData = createSuccessResponseData(user);
-    res.status(201).json(responseData);
+    return res.status(201).json(user);
   } catch (error) {
     console.log(error);
-    res.status(500).send(error);
+    return res.status(500).send({ error: "Something went wrong" });
   }
 }
 
 async function authenticateUser(req, res) {
-  const user = await userModel.findUserByEmail(req.body.email);
+  const user = await userModel.findUserByEmail(req.body.email, null);
   if (!user) {
     return res.status(401).send({ error: "Wrong email or password" });
   }
@@ -40,15 +39,6 @@ async function authenticateUser(req, res) {
 
   const accessToken = authorizer.generateAccessToken(user);
   return res.status(200).send({ accessToken: accessToken });
-}
-
-function createSuccessResponseData(user) {
-  const responseData = {
-    username: user.username,
-    email: user.email,
-    profileImage: user.profileImage,
-  };
-  return responseData;
 }
 
 module.exports = {

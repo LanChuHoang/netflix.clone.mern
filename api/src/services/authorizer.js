@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
-const DEFAULT_TOKEN_AVAILABLE_TIME = 30;
+const DEFAULT_TOKEN_AVAILABLE_TIME = 30 * 60;
 
 function generateAccessToken(user) {
   const token = jwt.sign(
@@ -14,10 +14,12 @@ function generateAccessToken(user) {
 }
 
 function verifyAccessToken(req, res, next) {
-  const token = req.header("Authorization").split(" ")[1];
+  const token = req.header("Authorization")?.split(" ")[1];
+  if (!token) {
+    return res.status(401).send({ error: "Unauthorize" });
+  }
   try {
-    const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
-    req.user = payload;
+    req.user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
     next();
   } catch (error) {
     console.log(error);
@@ -27,7 +29,15 @@ function verifyAccessToken(req, res, next) {
   }
 }
 
+function checkPermission(req, res, next) {
+  if (req.params.id !== req.user.id && !req.user.isAdmin) {
+    return res.status(403).send({ error: "Permission denined" });
+  }
+  next();
+}
+
 module.exports = {
   generateAccessToken,
   verifyAccessToken,
+  checkPermission,
 };
