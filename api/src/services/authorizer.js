@@ -29,7 +29,13 @@ function verifyAccessToken(req, res, next) {
   }
 }
 
-function checkPermission(req, res, next) {
+function authorizeAdmin(req, res, next) {
+  if (!req.user.isAdmin)
+    return res.status(403).send({ error: "Permission denined" });
+  next();
+}
+
+function authorizeUserOrAdmin(req, res, next) {
   if (req.params.id !== req.user.id && !req.user.isAdmin) {
     return res.status(403).send({ error: "Permission denined" });
   }
@@ -39,5 +45,6 @@ function checkPermission(req, res, next) {
 module.exports = {
   generateAccessToken,
   verifyAccessToken,
-  checkPermission,
+  authorizeUserOrAdmin,
+  authorizeAdmin,
 };
