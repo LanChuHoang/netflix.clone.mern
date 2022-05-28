@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon src/server.js",
-    "filldb": "nodemon src/data/dataFiller.js"
+    "filldb": "nodemon src/data/dataFiller.js",
+    "deploy": "node src/server.js"
   },
   "keywords": [],
   "author": "",
