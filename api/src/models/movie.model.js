@@ -14,7 +14,7 @@ const movieSchema = new mongoose.Schema(
     video: { type: String },
     releaseDate: { type: Date },
     limit: { type: Number },
-    genre: { type: String },
+    genres: { type: [String] },
     isSeries: { type: Boolean, default: false },
   },
   options
@@ -37,6 +37,16 @@ async function addMovie(movie) {
     const createdMovie = await movies.create(movie);
     const { __v, createdAt, updatedAt, ...output } = createdMovie.toObject();
     return output;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function addMovies(newMovies) {
+  try {
+    const createdMovies = await movies.insertMany(newMovies);
+    // const { __v, createdAt, updatedAt, ...output } = createdMovie.toObject();
+    return createdMovies;
   } catch (error) {
     throw error;
   }
@@ -116,6 +126,7 @@ async function deleteMovieByID(id, projection = DEFAULT_PROJECTION) {
 module.exports = {
   isExists,
   addMovie,
+  addMovies,
   findMovieByID,
   findMovieByTitle,
   getAllMovies,
