@@ -19,7 +19,7 @@ async function addList(req, res) {
 async function getRandomLists(req, res) {
   const { type, genre, limit } = req.query;
   try {
-    const lists = await listModel.getRandomLists(type, genre, limit);
+    const lists = await listModel.getRandomLists(type, genre, +limit);
     return res.status(200).json(lists);
   } catch (error) {
     console.log(error);

@@ -19,12 +19,17 @@ export default function Register() {
   };
   const handleFinish = async (e) => {
     e.preventDefault();
+    console.log("a");
     setPassword(passwordRef.current.value);
     setUsername(usernameRef.current.value);
     try {
-      await axios.post("auth/register", { email,username, password });
+      await axios.post("auth/register", { email, username, password });
       history.push("/login");
     } catch (err) {}
+  };
+  const handleLoginButton = (e) => {
+    console.log("lc");
+    history.push("/login");
   };
   return (
     <div className="register">
@@ -35,7 +40,9 @@ export default function Register() {
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png"
             alt=""
           />
-          <button className="loginButton">Sign In</button>
+          <button className="loginButton" onClick={handleLoginButton}>
+            Sign In
+          </button>
         </div>
       </div>
       <div className="container">

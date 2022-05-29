@@ -142,12 +142,47 @@ const tvGenres = [
     name: "Western",
   },
 ];
-
 const genresMap = new Map();
 [...movieGenres, ...tvGenres].forEach((g) => {
   genresMap.set(g.id, g.name);
 });
 
+const movieOfficialLists = ["now_playing", "popular", "upcoming", "top_rated"];
+const tvOfficialLists = ["on_the_air", "airing_today", "popular", "top_rated"];
+
+const API_KEY = "8278c684ff956c8023741995ca3ce340";
+const BASE_URL = `https://api.themoviedb.org/3`;
+const BASE_IMAGE_URL = "http://image.tmdb.org/t/p";
+const BACKDROP_IMAGE_SIZE = "/original";
+const THUMBNAIL_IMAGE_SIZE = "/w300";
+
+function getSingleItemURL(type, id) {
+  return `${BASE_URL}/${type}/${id}?api_key=${API_KEY}`;
+}
+
+function getBackgroundImage(path) {
+  return path ? `${BASE_IMAGE_URL}${BACKDROP_IMAGE_SIZE}${path}` : null;
+}
+
+function getThumbnailImage(path) {
+  return path ? `${BASE_IMAGE_URL}${THUMBNAIL_IMAGE_SIZE}${path}` : null;
+}
+
+function getGenresArray(genresIDs) {
+  return genresIDs.map((id) => genresMap.get(id));
+}
+
 module.exports = {
   genres: genresMap,
+  movieOfficialLists,
+  tvOfficialLists,
+  API_KEY,
+  BASE_URL,
+  BASE_IMAGE_URL,
+  BACKDROP_IMAGE_SIZE,
+  THUMBNAIL_IMAGE_SIZE,
+  getSingleItemURL,
+  getBackgroundImage,
+  getThumbnailImage,
+  getGenresArray,
 };

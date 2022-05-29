@@ -88,14 +88,16 @@ async function getAllLists(
 
 async function getRandomLists(type = "movie", genre, limit = 10) {
   try {
-    return await lists.aggregate([
+    const matchStage = genre ? { type: type, genres: genre } : { type: type };
+    const unPopulateList = await lists.aggregate([
       {
-        $match: { type: type, genres: genre },
+        $match: matchStage,
       },
       {
         $sample: { size: limit },
       },
     ]);
+    return await lists.populate(unPopulateList, { path: "items" });
   } catch (error) {
     throw error;
   }
@@ -120,6 +122,10 @@ async function deleteListByID(id, projection = DEFAULT_PROJECTION) {
   }
 }
 
+async function deleteSeriesLists() {
+  await lists.deleteMany({ type: "series" });
+}
+
 module.exports = {
   isExists,
   addList,
@@ -130,4 +136,5 @@ module.exports = {
   getRandomLists,
   updateList,
   deleteListByID,
+  deleteSeriesLists,
 };

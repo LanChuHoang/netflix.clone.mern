@@ -14,21 +14,35 @@ export default function ListItem({ index, item }) {
   const [movie, setMovie] = useState({});
 
   useEffect(() => {
-    const getMovie = async () => {
-      try {
-        const res = await axios.get("/movies/find/" + item, {
-          headers: {
-            token:
-            "Bearer "+JSON.parse(localStorage.getItem("user")).accessToken,
-          },
-        });
-        setMovie(res.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getMovie();
+    // const getMovie = () => {
+    //   // try {
+    //   //   const res = await axios.get(
+    //   //     "http://locahost:8000/api/movie/find/" + item,
+    //   //     {
+    //   //       headers: {
+    //   //         Authorization:
+    //   //           "Bearer " +
+    //   //           JSON.parse(localStorage.getItem("user")).accessToken,
+    //   //       },
+    //   //     }
+    //   //   );
+    //   //   setMovie(res.data);
+    //   // } catch (err) {
+    //   //   console.log(err);
+    //   // }
+    //   setMovie(item);
+    // };
+    // getMovie();
+    setMovie(item);
   }, [item]);
+  // console.log(movie);
+
+  const timeFormatter = (minutes) => {
+    if (minutes < 60) return `${minutes} mins`;
+    const numHours = Math.floor(minutes / 60);
+    const numMins = minutes % 60;
+    return `${numHours}h ${numMins ? `${numMins} mins` : ""}`;
+  };
 
   return (
     <Link to={{ pathname: "/watch", movie: movie }}>
@@ -38,7 +52,7 @@ export default function ListItem({ index, item }) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <img src={movie?.imgSm} alt="" />
+        <img src={movie.imageThumbnail} alt="" />
         {isHovered && (
           <>
             <video src={movie.trailer} autoPlay={true} loop />
@@ -49,13 +63,25 @@ export default function ListItem({ index, item }) {
                 <ThumbUpAltOutlined className="icon" />
                 <ThumbDownOutlined className="icon" />
               </div>
+
               <div className="itemInfoTop">
-                <span>{movie.duration}</span>
-                <span className="limit">+{movie.limit}</span>
-                <span>{movie.year}</span>
+                <span className="miniTitle">{movie.title}</span>
+                <span className="runtime">
+                  {movie.isSeries
+                    ? `${movie.numSeasons} season${
+                        movie.numSeasons > 1 ? "s" : ""
+                      }`
+                    : timeFormatter(movie.runtime)}
+                </span>
+                <span className={movie.adult ? "limit" : ""}>
+                  {movie.adult ? "+18" : ""}
+                </span>
+                <span className="miniYear">
+                  {new Date(movie.releaseDate).getFullYear()}
+                </span>
               </div>
-              <div className="desc">{movie.desc}</div>
-              <div className="genre">{movie.genre}</div>
+              <div className="desc">{movie.description}</div>
+              <div className="genre">{movie.genres.join(", ")}</div>
             </div>
           </>
         )}

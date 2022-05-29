@@ -13,7 +13,10 @@ const movieSchema = new mongoose.Schema(
     trailer: { type: String },
     video: { type: String },
     releaseDate: { type: Date },
-    limit: { type: Number },
+    adult: { type: Boolean },
+    runtime: { type: Number },
+    numEpisodes: { type: Number },
+    numSeasons: { type: Number },
     genres: { type: [String] },
     isSeries: { type: Boolean, default: false },
   },
@@ -123,6 +126,12 @@ async function deleteMovieByID(id, projection = DEFAULT_PROJECTION) {
   }
 }
 
+async function deleteSeries() {
+  await movies.deleteMany({
+    isSeries: true,
+  });
+}
+
 module.exports = {
   isExists,
   addMovie,
@@ -133,4 +142,5 @@ module.exports = {
   getRandomMovie,
   updateMovie,
   deleteMovieByID,
+  deleteSeries,
 };

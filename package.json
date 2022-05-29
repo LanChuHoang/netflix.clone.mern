@@ -4,7 +4,9 @@
   "description": "My Netflix clone project using MERN stack",
   "main": "api/src/server.js",
   "scripts": {
-    "start": "npm run deploy --prefix api"
+    "client": "npm start --prefix client",
+    "server": "npm start --prefix api",
+    "start": "npm run build-deploy --prefix client && npm run deploy --prefix api"
   },
   "repository": {
     "type": "git",
