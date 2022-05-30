@@ -1,6 +1,6 @@
 const http = require("http");
 const app = require("./app");
-const mongoService = require("./services/mongo");
+const mongoService = require("./services/mongo.service");
 
 const server = http.createServer(app);
 const PORT = 8000;

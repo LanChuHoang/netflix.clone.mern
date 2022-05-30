@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose");
-const userModel = require("../../models/user.model");
-const aesCipher = require("../../services/aesCipher");
+const userService = require("../../models/user/user.service");
+const aesService = require("../../services/aes.service");
 
 function responseInvalidQueryError(req, res) {
   return res.status(400).send({ error: "Invalid Query" });
@@ -15,7 +15,7 @@ async function getAllUsers(req, res) {
   });
 
   try {
-    const users = await userModel.getAllUsers(afterID, limit, sort);
+    const users = await userService.getAllUsers(afterID, limit, sort);
     const responseData = {
       docs: users,
       afterID: afterID ? afterID : null,
@@ -37,7 +37,7 @@ async function getAllUsers(req, res) {
 
 async function getUser(req, res) {
   try {
-    const user = await userModel.findUserByID(req.params.id);
+    const user = await userService.findUserByID(req.params.id);
     if (!user) {
       return res.status(404).send({ error: "Not found any matched user" });
     }
@@ -51,9 +51,9 @@ async function getUser(req, res) {
 async function updateUser(req, res) {
   try {
     if (req.body.password) {
-      req.body.password = aesCipher.encrypt(req.body.password);
+      req.body.password = aesService.encrypt(req.body.password);
     }
-    const updatedUser = await userModel.updateUser(req.params.id, req.body);
+    const updatedUser = await userService.updateUser(req.params.id, req.body);
     if (!updatedUser) {
       return res.status(404).send({ error: "Not found any matched user" });
     }
@@ -66,7 +66,7 @@ async function updateUser(req, res) {
 
 async function deleteUser(req, res) {
   try {
-    const deletedUser = await userModel.deleteUserByID(req.params.id);
+    const deletedUser = await userService.deleteUserByID(req.params.id);
     if (!deletedUser) {
       return res.status(404).send({ error: "Not found any matched user" });
     }
@@ -79,7 +79,7 @@ async function deleteUser(req, res) {
 
 async function getNumUserPerMonth(req, res) {
   try {
-    const data = await userModel.getNumUserPerMonth();
+    const data = await userService.getNumUserPerMonth();
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);

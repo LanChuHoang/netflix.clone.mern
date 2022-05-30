@@ -1,19 +1,4 @@
-const mongoose = require("mongoose");
-
-const options = {
-  timestamps: true,
-};
-const listSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true, unique: true },
-    type: { type: String },
-    genres: { type: [String] },
-    items: { type: [mongoose.SchemaTypes.ObjectId], ref: "Movie" },
-  },
-  options
-);
-
-const lists = mongoose.model("List", listSchema);
+const listModel = require("./list.model");
 
 const DEFAULT_PROJECTION = {
   __v: 0,
@@ -22,12 +7,12 @@ const DEFAULT_PROJECTION = {
 };
 
 async function isExists(list) {
-  return (await lists.exists({ title: list.title })) !== null;
+  return (await listModel.exists({ title: list.title })) !== null;
 }
 
 async function addList(list) {
   try {
-    const createdlist = await lists.create(list);
+    const createdlist = await listModel.create(list);
     const { __v, createdAt, updatedAt, ...output } = createdlist.toObject();
     return output;
   } catch (error) {
@@ -37,7 +22,7 @@ async function addList(list) {
 
 async function addLists(newLists) {
   try {
-    const createdlists = await lists
+    const createdlists = await listModel
       .insertMany(newLists)
       .populate("items", DEFAULT_PROJECTION);
     // const { __v, createdAt, updatedAt, ...output } = createdlist.toObject();
@@ -49,7 +34,7 @@ async function addLists(newLists) {
 
 async function findListByID(id, projection = DEFAULT_PROJECTION) {
   try {
-    return await lists.findById(id, projection);
+    return await listModel.findById(id, projection);
   } catch (error) {
     throw error;
   }
@@ -57,7 +42,7 @@ async function findListByID(id, projection = DEFAULT_PROJECTION) {
 
 async function findListByTitle(title, projection = DEFAULT_PROJECTION) {
   try {
-    return await lists
+    return await listModel
       .findOne({ title: title }, projection)
       .populate("items", DEFAULT_PROJECTION);
   } catch (error) {
@@ -75,12 +60,12 @@ async function getAllLists(
     let filter = {};
     if (afterID && sort) {
       const firstSortField = Object.keys(sort)[0];
-      const pivot = (await lists.findById(afterID))[firstSortField];
+      const pivot = (await listModel.findById(afterID))[firstSortField];
       filter[firstSortField] = { $gt: pivot };
     } else if (afterID) {
       filter = { _id: { $gt: afterID } };
     }
-    return await lists.find(filter, projection).sort(sort).limit(limit);
+    return await listModel.find(filter, projection).sort(sort).limit(limit);
   } catch (error) {
     throw error;
   }
@@ -89,7 +74,7 @@ async function getAllLists(
 async function getRandomLists(type = "movie", genre, limit = 10) {
   try {
     const matchStage = genre ? { type: type, genres: genre } : { type: type };
-    const unPopulateList = await lists.aggregate([
+    const unPopulateList = await listModel.aggregate([
       {
         $match: matchStage,
       },
@@ -97,7 +82,7 @@ async function getRandomLists(type = "movie", genre, limit = 10) {
         $sample: { size: limit },
       },
     ]);
-    return await lists.populate(unPopulateList, { path: "items" });
+    return await listModel.populate(unPopulateList, { path: "items" });
   } catch (error) {
     throw error;
   }
@@ -105,7 +90,7 @@ async function getRandomLists(type = "movie", genre, limit = 10) {
 
 async function updateList(id, updateData, projection = DEFAULT_PROJECTION) {
   try {
-    return await lists.findByIdAndUpdate(id, updateData, {
+    return await listModel.findByIdAndUpdate(id, updateData, {
       returnDocument: "after",
       projection: projection,
     });
@@ -116,14 +101,14 @@ async function updateList(id, updateData, projection = DEFAULT_PROJECTION) {
 
 async function deleteListByID(id, projection = DEFAULT_PROJECTION) {
   try {
-    return await lists.findByIdAndDelete(id, { projection: projection });
+    return await listModel.findByIdAndDelete(id, { projection: projection });
   } catch (error) {
     throw error;
   }
 }
 
 async function deleteSeriesLists() {
-  await lists.deleteMany({ type: "series" });
+  await listModel.deleteMany({ type: "series" });
 }
 
 module.exports = {

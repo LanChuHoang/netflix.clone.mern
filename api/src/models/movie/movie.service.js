@@ -1,29 +1,4 @@
-const mongoose = require("mongoose");
-
-const options = {
-  timestamps: true,
-};
-const movieSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true, unique: true },
-    description: { type: String },
-    image: { type: String },
-    imageTitle: { type: String },
-    imageThumbnail: { type: String },
-    trailer: { type: String },
-    video: { type: String },
-    releaseDate: { type: Date },
-    adult: { type: Boolean },
-    runtime: { type: Number },
-    numEpisodes: { type: Number },
-    numSeasons: { type: Number },
-    genres: { type: [String] },
-    isSeries: { type: Boolean, default: false },
-  },
-  options
-);
-
-const movies = mongoose.model("Movie", movieSchema);
+const movieModel = require("./movie.model");
 
 const DEFAULT_PROJECTION = {
   __v: 0,
@@ -32,12 +7,12 @@ const DEFAULT_PROJECTION = {
 };
 
 async function isExists(movie) {
-  return (await movies.exists({ title: movie.title })) !== null;
+  return (await movieModel.exists({ title: movie.title })) !== null;
 }
 
 async function addMovie(movie) {
   try {
-    const createdMovie = await movies.create(movie);
+    const createdMovie = await movieModel.create(movie);
     const { __v, createdAt, updatedAt, ...output } = createdMovie.toObject();
     return output;
   } catch (error) {
@@ -47,7 +22,7 @@ async function addMovie(movie) {
 
 async function addMovies(newMovies) {
   try {
-    const createdMovies = await movies.insertMany(newMovies);
+    const createdMovies = await movieModel.insertMany(newMovies);
     // const { __v, createdAt, updatedAt, ...output } = createdMovie.toObject();
     return createdMovies;
   } catch (error) {
@@ -57,7 +32,7 @@ async function addMovies(newMovies) {
 
 async function findMovieByID(id, projection = DEFAULT_PROJECTION) {
   try {
-    return await movies.findById(id, projection);
+    return await movieModel.findById(id, projection);
   } catch (error) {
     throw error;
   }
@@ -65,7 +40,7 @@ async function findMovieByID(id, projection = DEFAULT_PROJECTION) {
 
 async function findMovieByTitle(title, projection = DEFAULT_PROJECTION) {
   try {
-    return await movies.findOne({ title: title }, projection);
+    return await movieModel.findOne({ title: title }, projection);
   } catch (error) {
     throw error;
   }
@@ -81,12 +56,12 @@ async function getAllMovies(
     let filter = {};
     if (afterID && sort) {
       const firstSortField = Object.keys(sort)[0];
-      const pivot = (await movies.findById(afterID))[firstSortField];
+      const pivot = (await movieModel.findById(afterID))[firstSortField];
       filter[firstSortField] = { $gt: pivot };
     } else if (afterID) {
       filter = { _id: { $gt: afterID } };
     }
-    return await movies.find(filter, projection).sort(sort).limit(limit);
+    return await movieModel.find(filter, projection).sort(sort).limit(limit);
   } catch (error) {
     throw error;
   }
@@ -94,7 +69,7 @@ async function getAllMovies(
 
 async function getRandomMovie(type) {
   try {
-    return await movies.aggregate([
+    return await movieModel.aggregate([
       {
         $match: { isSeries: type === "series" },
       },
@@ -109,7 +84,7 @@ async function getRandomMovie(type) {
 
 async function updateMovie(id, updateData, projection = DEFAULT_PROJECTION) {
   try {
-    return await movies.findByIdAndUpdate(id, updateData, {
+    return await movieModel.findByIdAndUpdate(id, updateData, {
       returnDocument: "after",
       projection: projection,
     });
@@ -120,14 +95,14 @@ async function updateMovie(id, updateData, projection = DEFAULT_PROJECTION) {
 
 async function deleteMovieByID(id, projection = DEFAULT_PROJECTION) {
   try {
-    return await movies.findByIdAndDelete(id, { projection: projection });
+    return await movieModel.findByIdAndDelete(id, { projection: projection });
   } catch (error) {
     throw error;
   }
 }
 
 async function deleteSeries() {
-  await movies.deleteMany({
+  await movieModel.deleteMany({
     isSeries: true,
   });
 }

@@ -1,36 +1,40 @@
 const express = require("express");
 const userController = require("./user.controller");
-const authorizer = require("../../services/authorizer");
+const authorizerService = require("../../services/authorizer.service");
 
 const router = express.Router();
 
-router.use(authorizer.verifyAccessToken);
+router.use(authorizerService.verifyAccessToken);
 
 // GET All Users: GET /user
 // by Admin
 // Output user infor except password, __v, createdAt, updateAt
-router.get("/", authorizer.authorizeAdmin, userController.getAllUsers);
+router.get("/", authorizerService.authorizeAdmin, userController.getAllUsers);
 
 // GET Single User: GET /user/:id
 // by Admin or Owner User
 // Output user infor except password, __v, createdAt, updateAt
 router.get(
   "/find/:id",
-  authorizer.authorizeUserOrAdmin,
+  authorizerService.authorizeUserOrAdmin,
   userController.getUser
 );
 
 // UPDATE User Profile: PUT /user/:id
 // by Admin or Owner User
 // Output updated user infor except password, __v, createdAt, updateAt
-router.put("/:id", authorizer.authorizeUserOrAdmin, userController.updateUser);
+router.put(
+  "/:id",
+  authorizerService.authorizeUserOrAdmin,
+  userController.updateUser
+);
 
 // DELETE Single User: DELETE /user/:id
 // by Admin or Owner User
 // Output deleted user infor except password, __v, createdAt, updateAt
 router.delete(
   "/:id",
-  authorizer.authorizeUserOrAdmin,
+  authorizerService.authorizeUserOrAdmin,
   userController.deleteUser
 );
 
@@ -39,7 +43,7 @@ router.delete(
 // Output user infor except password, __v, createdAt, updateAt
 router.get(
   "/stats/",
-  authorizer.authorizeAdmin,
+  authorizerService.authorizeAdmin,
   userController.getNumUserPerMonth
 );
 

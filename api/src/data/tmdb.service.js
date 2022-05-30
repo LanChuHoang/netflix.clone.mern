@@ -1,8 +1,8 @@
 const axios = require("axios").default;
 const config = require("./tmdb.configure");
-const movieModel = require("../models/movie.model");
-const listModel = require("../models/list.model");
-const mongodb = require("../services/mongo");
+const movieService = require("../models/movie/movie.service");
+const listService = require("../models/list/list.service");
+const mongoService = require("../services/mongo.service");
 
 async function mapMovieToMongoModel(movie) {
   return {
@@ -87,9 +87,9 @@ async function getTrailerURL(type, id) {
 
 async function upsertMovie(movie) {
   try {
-    const result = await movieModel.findMovieByTitle(movie.title);
+    const result = await movieService.findMovieByTitle(movie.title);
     if (result) return result;
-    return await movieModel.addMovie(movie);
+    return await movieService.addMovie(movie);
   } catch (error) {
     console.log(error);
   }
@@ -97,9 +97,9 @@ async function upsertMovie(movie) {
 
 async function upsertList(list) {
   try {
-    const result = await listModel.findListByTitle(list.title);
+    const result = await listService.findListByTitle(list.title);
     if (result) return result;
-    return await listModel.addList(list);
+    return await listService.addList(list);
   } catch (error) {
     console.log(error);
   }
@@ -114,13 +114,13 @@ async function loadOfficialListPage(listName, itemType, page) {
     const ids = [];
     for (const result of results) {
       const title = itemType === "movie" ? result.title : result.name;
-      let savedModel = await movieModel.findMovieByTitle(title);
+      let savedModel = await movieService.findMovieByTitle(title);
       if (!savedModel) {
         const modelData =
           itemType === "movie"
             ? await getMovie(result.id)
             : await getTV(result.id);
-        savedModel = await movieModel.addMovie(modelData);
+        savedModel = await movieService.addMovie(modelData);
       }
       // console.log(savedModel);
       genres.push(...savedModel.genres);
@@ -146,7 +146,7 @@ async function loadOfficialList(listName, itemType, numPages) {
   };
 
   try {
-    let savedList = await listModel.findListByTitle(formatListName(listName));
+    let savedList = await listService.findListByTitle(formatListName(listName));
     if (savedList) {
       console.log(
         "List already loaded",
@@ -175,7 +175,7 @@ async function loadOfficialList(listName, itemType, numPages) {
       genres: Array.from(new Set(genres)),
       items: ids,
     };
-    savedList = await listModel.addList(listData);
+    savedList = await listService.addList(listData);
     console.log(savedList.title, itemType, savedList.items.length);
     return savedList;
   } catch (error) {
@@ -223,7 +223,7 @@ async function loadUserCreatedMovieLists(startID, endID) {
 }
 
 async function test() {
-  await mongodb.connect();
+  await mongoService.connect();
   // console.log(await getMovie(634649));
   // console.log(await getTV(92749));
   // await loadUserCreatedMovieLists(1, 20);
@@ -231,7 +231,7 @@ async function test() {
   await loadOfficialLists("tv", 1);
   // await movieModel.deleteSeries();
   // await listModel.deleteSeriesLists();
-  await mongodb.disconnect();
+  await mongoService.disconnect();
 }
 
 test();
