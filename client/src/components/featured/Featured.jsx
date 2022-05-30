@@ -9,12 +9,17 @@ export default function Featured({ type, setGenre }) {
   useEffect(() => {
     const getRandomContent = async () => {
       try {
-        const res = await axios.get(`/movies/random?type=${type}`, {
-          headers: {
-            token:
-              "Bearer "+JSON.parse(localStorage.getItem("user")).accessToken,
-          },
-        });
+        const res = await axios.get(
+          `http://localhost:8000/api/movie/random?type=${type}`,
+          {
+            headers: {
+              Authorization:
+                "Bearer " +
+                JSON.parse(localStorage.getItem("user")).accessToken,
+            },
+          }
+        );
+        // console.log(await res.data[0]);
         setContent(res.data[0]);
       } catch (err) {
         console.log(err);
@@ -28,33 +33,39 @@ export default function Featured({ type, setGenre }) {
     <div className="featured">
       {type && (
         <div className="category">
-          <span>{type === "movies" ? "Movies" : "Series"}</span>
+          <span>{type === "movie" ? "Movies" : "Series"}</span>
           <select
             name="genre"
             id="genre"
             onChange={(e) => setGenre(e.target.value)}
           >
             <option>Genre</option>
-            <option value="adventure">Adventure</option>
-            <option value="comedy">Comedy</option>
-            <option value="crime">Crime</option>
-            <option value="fantasy">Fantasy</option>
-            <option value="historical">Historical</option>
-            <option value="horror">Horror</option>
-            <option value="romance">Romance</option>
-            <option value="sci-fi">Sci-fi</option>
-            <option value="thriller">Thriller</option>
-            <option value="western">Western</option>
-            <option value="animation">Animation</option>
-            <option value="drama">Drama</option>
-            <option value="documentary">Documentary</option>
+            <option value="Action">Action</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Animation">Animation</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Crime">Crime</option>
+            <option value="Documentary">Documentary</option>
+            <option value="Drama">Drama</option>
+            <option value="Family">Family</option>
+            <option value="Fantasy">Fantasy</option>
+            <option value="History">History</option>
+            <option value="Horror">Horror</option>
+            <option value="Music">Music</option>
+            <option value="Mystery">Mystery</option>
+            <option value="Romance">Romance</option>
+            <option value="Science Fiction">Science Fiction</option>
+            <option value="TV Movie">TV Movie</option>
+            <option value="Thriller">Thriller</option>
+            <option value="War">War</option>
+            <option value="Western">Western</option>
           </select>
         </div>
       )}
-      <img src={content.img} alt="" />
+      <img src={content.image} alt="" />
       <div className="info">
-        <img src={content.imgTitle} alt="" />
-        <span className="desc">{content.desc}</span>
+        <span className="big-title">{content.title}</span>
+        <span className="desc">{content.description}</span>
         <div className="buttons">
           <button className="play">
             <PlayArrow />

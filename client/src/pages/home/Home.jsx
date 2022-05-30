@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const Home = ({ type }) => {
+  console.log(type);
   const [lists, setLists] = useState([]);
   const [genre, setGenre] = useState(null);
 
@@ -13,16 +14,18 @@ const Home = ({ type }) => {
     const getRandomLists = async () => {
       try {
         const res = await axios.get(
-          `lists${type ? "?type=" + type : ""}${
+          `http://localhost:8000/api/list/random?type=${type}${
             genre ? "&genre=" + genre : ""
-          }`,
+          }&limit=10`,
           {
             headers: {
-              token:
-              "Bearer "+JSON.parse(localStorage.getItem("user")).accessToken,
+              Authorization:
+                "Bearer " +
+                JSON.parse(localStorage.getItem("user")).accessToken,
             },
           }
         );
+        // console.log(res.data);
         setLists(res.data);
       } catch (err) {
         console.log(err);
