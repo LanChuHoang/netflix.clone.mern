@@ -1,10 +1,8 @@
 const { default: mongoose } = require("mongoose");
+const { errorResponse } = require("../../configs/route.config");
 const userService = require("../../models/user/user.service");
 const aesService = require("../../services/aes.service");
 
-function responseInvalidQueryError(req, res) {
-  return res.status(400).send({ error: "Invalid Query" });
-}
 // GET /user?after_id:0&limit=10&sort_by=_id:desc
 async function getAllUsers(req, res) {
   const { after_id: afterID, limit, sort_by: sortOptions } = req.query;
@@ -29,9 +27,9 @@ async function getAllUsers(req, res) {
       error instanceof mongoose.Error.CastError ||
       error instanceof TypeError
     ) {
-      return responseInvalidQueryError(req, res);
+      return res.status(400).send(errorResponse.INVALID_QUERY);
     }
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -39,12 +37,12 @@ async function getUser(req, res) {
   try {
     const user = await userService.findUserByID(req.params.id);
     if (!user) {
-      return res.status(404).send({ error: "Not found any matched user" });
+      return res.status(404).send(errorResponse.DEFAULT_404_ERROR);
     }
     return res.status(200).json(user);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -55,12 +53,12 @@ async function updateUser(req, res) {
     }
     const updatedUser = await userService.updateUser(req.params.id, req.body);
     if (!updatedUser) {
-      return res.status(404).send({ error: "Not found any matched user" });
+      return res.status(404).send(errorResponse.DEFAULT_404_ERROR);
     }
     return res.status(200).json(updatedUser);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -68,12 +66,12 @@ async function deleteUser(req, res) {
   try {
     const deletedUser = await userService.deleteUserByID(req.params.id);
     if (!deletedUser) {
-      return res.status(404).send({ error: "Not found any matched user" });
+      return res.status(404).send(errorResponse.DEFAULT_404_ERROR);
     }
     return res.status(200).json(deletedUser);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -83,7 +81,7 @@ async function getNumUserPerMonth(req, res) {
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 

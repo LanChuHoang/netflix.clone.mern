@@ -1,17 +1,18 @@
+const { errorResponse } = require("../../configs/route.config");
 const userService = require("../../models/user/user.service");
 const aesService = require("../../services/aes.service");
 const authorizerService = require("../../services/authorizer.service");
 
-async function validateRegisterInput(req, res, next) {
+async function validateRegisterInput(req, res) {
   if (await userService.isExists(req.body)) {
     return res.status(400).json({
       error: "User already registered",
     });
   }
-  next();
 }
 
 async function registerUser(req, res) {
+  await validateRegisterInput(req, res);
   try {
     const userData = {
       username: req.body.username,
@@ -22,7 +23,7 @@ async function registerUser(req, res) {
     return res.status(201).json(user);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -42,7 +43,6 @@ async function authenticateUser(req, res) {
 }
 
 module.exports = {
-  validateRegisterInput,
   registerUser,
   authenticateUser,
 };

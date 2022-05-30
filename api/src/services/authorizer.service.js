@@ -24,8 +24,8 @@ function verifyAccessToken(req, res, next) {
   } catch (error) {
     console.log(error);
     if (error instanceof jwt.JsonWebTokenError)
-      return res.status(403).send({ error: "Invalid Token" });
-    return res.status(400).send({ error: "Invalid Request" });
+      return res.status(403).send({ error: "Invalid token" });
+    return res.status(400).send({ error: "Invalid request" });
   }
 }
 

@@ -1,8 +1,5 @@
+const { errorResponse } = require("../../configs/route.config");
 const listService = require("../../models/list/list.service");
-
-function responseInvalidQueryError(req, res) {
-  return res.status(400).send({ error: "Invalid Query" });
-}
 
 async function addList(req, res) {
   if (await listService.isExists(req.body))
@@ -12,7 +9,7 @@ async function addList(req, res) {
     return res.status(201).json(list);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -23,7 +20,7 @@ async function getRandomLists(req, res) {
     return res.status(200).json(lists);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -31,12 +28,12 @@ async function deleteList(req, res) {
   try {
     const deletedlist = await listService.deleteListByID(req.params.id);
     if (!deletedlist) {
-      return res.status(404).send({ error: "Not found any matched user" });
+      return res.status(404).send(errorResponse.DEFAULT_404_ERROR);
     }
     return res.status(200).json(deletedlist);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 

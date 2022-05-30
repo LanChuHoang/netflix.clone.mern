@@ -1,9 +1,6 @@
 const { default: mongoose } = require("mongoose");
+const { errorResponse } = require("../../configs/route.config");
 const movieService = require("../../models/movie/movie.service");
-
-function responseInvalidQueryError(req, res) {
-  return res.status(400).send({ error: "Invalid Query" });
-}
 
 async function addMovie(req, res) {
   if (await movieService.isExists(req.body))
@@ -13,7 +10,7 @@ async function addMovie(req, res) {
     return res.status(201).json(movie);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -40,9 +37,10 @@ async function getAllMovies(req, res) {
       error instanceof mongoose.Error.CastError ||
       error instanceof TypeError
     ) {
-      return responseInvalidQueryError(req, res);
+      return res.status(400).send(errorResponse.INVALID_QUERY);
+      req, res;
     }
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -50,25 +48,26 @@ async function getMovie(req, res) {
   try {
     const movie = await movieService.findMovieByID(req.params.id);
     if (!movie) {
-      return res.status(404).send({ error: "Not found any matched user" });
+      return res.status(404).send(errorResponse.DEFAULT_404_ERROR);
     }
     return res.status(200).json(movie);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
 async function getRandomMovie(req, res, next) {
   const type = req.query.type;
   if (type !== "series" && type !== "movie")
-    return responseInvalidQueryError(req, res);
+    return res.status(400).send(errorResponse.INVALID_QUERY);
+  req, res;
   try {
     const movie = await movieService.getRandomMovie(type);
     return res.status(200).json(movie);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -79,12 +78,12 @@ async function updateMovie(req, res) {
       req.body
     );
     if (!updatedMovie) {
-      return res.status(404).send({ error: "Not found any matched user" });
+      return res.status(404).send(errorR);
     }
     return res.status(200).json(updatedMovie);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
@@ -92,12 +91,12 @@ async function deleteMovie(req, res) {
   try {
     const deletedMovie = await movieService.deleteMovieByID(req.params.id);
     if (!deletedMovie) {
-      return res.status(404).send({ error: "Not found any matched user" });
+      return res.status(404).send(errorR);
     }
     return res.status(200).json(deletedMovie);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Something went wrong" });
+    return res.status(500).send(errorResponse.DEFAULT_500_ERROR);
   }
 }
 
